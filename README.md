@@ -1,6 +1,6 @@
-# Dash Shell
+# Sable Shell
 
-`dash` is a simple Unix-style shell written in C. It supports running external commands, basic built-ins (`cd`, `exit`), and displays a colored prompt with the username and current directory.
+`sable` is a simple Unix-style shell written in C. It supports running external commands, basic built-ins (`cd`, `exit`), and displays a colored prompt with the username and current directory.
 
 ---
 
@@ -36,13 +36,13 @@ cd Sable
 2. Compile the source code:
 
 ```bash
-gcc main.c -o dash
+gcc main.c -o sable
 ```
 
 3. Run the shell:
 
 ```bash
-./dash
+./sable
 ```
 
 ---
