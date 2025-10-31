@@ -16,31 +16,30 @@
 
 char *read_line();
 char **split_line(char *);
-int dash_exit(char **);
-int dash_execute(char **);
-int dash_cd(char **);
+int sable_exit(char **);
+int sable_execute(char **);
+int sable_cd(char **);
 
-int dash_cd(char **args) {
+int sable_cd(char **args) {
     if (args[1] == NULL) {
-        fprintf(stderr, "dash: expected argument to \"cd\"\n");
+        fprintf(stderr, "sable: expected argument to \"cd\"\n");
     } else {
         if (chdir(args[1]) != 0) {
-            perror("dash");
+            perror("sable");
         }
     }
     return 1;
 }
 
-int dash_execute(char **args) {
+int sable_execute(char **args) {
   if (args[0] == NULL)
       return 1;
 
   if (strcmp(args[0], "exit") == 0)
-      return dash_exit(args);
+      return sable_exit(args);
 
-      
   if (strcmp(args[0], "cd") == 0)
-      return dash_cd(args);
+      return sable_cd(args);
 
   pid_t cpid;
   int status;
@@ -48,10 +47,10 @@ int dash_execute(char **args) {
 
   if (cpid == 0) {
     if (execvp(args[0], args) < 0)
-      printf("%sdash: Command not found: %s%s\n", RED, args[0], RESET);
+      printf("%ssable: Command not found: %s%s\n", RED, args[0], RESET);
     exit(EXIT_FAILURE);
   } else if (cpid < 0) {
-    printf("%sdash: Error forking%s\n", RED, RESET);
+    printf("%ssable: Error forking%s\n", RED, RESET);
   } else {
     waitpid(cpid, &status, WUNTRACED);
   }
@@ -59,9 +58,9 @@ int dash_execute(char **args) {
   return 1;
 }
 
-int dash_exit(char **args)
+int sable_exit(char **args)
 {
-	return 0;
+    return 0;
 }
 
 char **split_line(char *line) {
@@ -70,7 +69,7 @@ char **split_line(char *line) {
   char *token;
 
   if (!tokens) {
-    fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
+    fprintf(stderr, "%s sable: Allocation error %s\n", RED, RESET);
     exit(EXIT_FAILURE);
   }
 
@@ -83,7 +82,7 @@ char **split_line(char *line) {
       buffsize += 1024;
       tokens = realloc(tokens, buffsize * sizeof(char*));
       if (!tokens) {
-        fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
+        fprintf(stderr, "%s sable: Allocation error %s\n", RED, RESET);
         exit(EXIT_FAILURE);
       }
     }
@@ -98,22 +97,12 @@ char **split_line(char *line) {
 char *read_line() {
     int buffsize = 1024;
     int position = 0;
-    // char * buffer = malloc(sizeof(char) & buffsize);
     char *buffer = malloc(buffsize);
-
-    // char *new_buffer = realloc(buffer, buffsize);
-    // if (!new_buffer) {
-    //     free(buffer);
-    //     fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
-    //     exit(EXIT_FAILURE);
-    // }
-    
-    // buffer = new_buffer;
 
     int c;
 
     if (!buffer) {
-        fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
+        fprintf(stderr, "%s sable: Allocation error %s\n", RED, RESET);
         exit(EXIT_FAILURE);
     }
 
@@ -121,7 +110,6 @@ char *read_line() {
     {
       c = getchar();
       if (c == EOF || c == '\n') {
-        //printf("\n");
         buffer[position] = '\0';
         return buffer;
       } else {
@@ -134,13 +122,11 @@ char *read_line() {
         char *new_buffer = realloc(buffer, buffsize);
 
         if (!buffer) {
-          fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
+          fprintf(stderr, "%s sable: Allocation error %s\n", RED, RESET);
           exit(EXIT_FAILURE);
         }
       }
     }
-    
-
 }
 
 void loop() {
@@ -162,13 +148,11 @@ void loop() {
 
         line = read_line();
         args = split_line(line);
-        status = dash_execute(args);
+        status = sable_execute(args);
         free(line);
         free(args);
     } while (status);
 }
-
-
 
 int main() {
     loop();
