@@ -15,13 +15,14 @@ int dash_exit(char **);
 int dash_execute(char **);
 
 int dash_execute(char **args) {
+  if (args[0] == NULL)
+        return 1;
+
+  if (strcmp(args[0], "exit") == 0)
+      return dash_exit(args);
+
   pid_t cpid;
   int status;
-
-  if (strcmp(args[0], "exit") == 0) {
-    return dash_exit(args);
-  }
-
   cpid = fork();
 
   if (cpid == 0) {
@@ -48,7 +49,7 @@ char **split_line(char *line) {
   char *token;
 
   if (!tokens) {
-    fprintf(stderr, "%dash: Allocation error%\n", RED, RESET);
+    fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
     exit(EXIT_FAILURE);
   }
 
@@ -61,7 +62,7 @@ char **split_line(char *line) {
       buffsize += 1024;
       tokens = realloc(tokens, buffsize * sizeof(char*));
       if (!tokens) {
-        fprintf(stderr, "%dash: Allocation error%\n", RED, RESET);
+        fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
         exit(EXIT_FAILURE);
       }
     }
@@ -77,22 +78,21 @@ char *read_line() {
     int buffsize = 1024;
     int position = 0;
     // char * buffer = malloc(sizeof(char) & buffsize);
-    // char *buffer = malloc(buffsize);
+    char *buffer = malloc(buffsize);
 
-    char *new_buffer = realloc(buffer, buffsize);
-    if (!new_buffer) {
-        free(buffer);
-        fprintf(stderr, "%sdash: Allocation error%s\n", RED, RESET);
-        exit(EXIT_FAILURE);
-    }
+    // char *new_buffer = realloc(buffer, buffsize);
+    // if (!new_buffer) {
+    //     free(buffer);
+    //     fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
+    //     exit(EXIT_FAILURE);
+    // }
     
-    buffer = new_buffer;
-
+    // buffer = new_buffer;
 
     int c;
 
     if (!buffer) {
-        fprintf(stderr, "%dash: Allocation error%\n", RED, RESET);
+        fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
         exit(EXIT_FAILURE);
     }
 
@@ -110,10 +110,10 @@ char *read_line() {
 
       if (position >= buffsize) {
         buffsize += 1024;
-        buffer = realloc(buffer, buffsize);
+        char *new_buffer = realloc(buffer, buffsize);
 
         if (!buffer) {
-          fprintf(stderr, "%dash: Allocation error%\n", RED, RESET);
+          fprintf(stderr, "%s dash: Allocation error %s\n", RED, RESET);
           exit(EXIT_FAILURE);
         }
       }
@@ -129,6 +129,7 @@ void loop() {
 
   do {
     printf("> ");
+    fflush(stdout);
     line = read_line();
     args = split_line(line);
     status = dash_execute(args);
