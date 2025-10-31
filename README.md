@@ -1,79 +1,81 @@
 # Sable Shell
 
-`sable` is a simple Unix-style shell written in C. It supports running external commands, basic built-ins (`cd`, `exit`), and displays a colored prompt with the username and current directory.
+`sable` is a lightweight Unix-style shell written in C. It supports executing external commands, basic built-ins (`cd`, `exit`), and displays a colorized prompt showing your username and current working directory.
 
 ---
 
 ## Features
 
-* Execute external commands (e.g., `ls`, `echo`, `pwd`)
-* Built-in `cd` command to change directories
-* Built-in `exit` command to exit the shell
-* Colored prompt:
+* Execute external programs (e.g. `ls`, `echo`, `pwd`)
+* Built-in commands:
 
-  * Username in **blue**
-  * Current directory in **green**
+  * `cd` — change directories
+  * `exit` — quit the shell
+* Colored prompt for clarity:
+
+  * **Blue** — username
+  * **Green** — current directory
+* Simple and readable codebase for learning shell design
+
+---
+
+## Project Structure
+
+```
+Sable/
+├── src/
+│   ├── main.c
+│   ├── loop.c
+│   ├── execute.c
+│   ├── builtin.c
+│   ├── utils.c
+│   └── sable.h
+├── Makefile
+└── README.md
+```
+
+All source and header files live in the `src/` directory.
+The `Makefile` handles compilation and cleanup automatically.
 
 ---
 
 ## Requirements
 
-* GCC compiler
-* Unix-like environment (Linux, WSL, macOS)
-* Terminal to run the shell
+* GCC or Clang compiler
+* A Unix-like environment (Linux, macOS, or WSL)
 
 ---
 
-## Building from Source
+## Building
 
-1. Clone the repository:
+To compile the shell, run:
 
 ```bash
-git clone https://github.com/your-username/Sable.git
-cd Sable
+make
 ```
 
-2. Compile the source code:
+This creates an executable named `sable` in the `build/` directory.
+
+To rebuild from scratch:
 
 ```bash
-gcc main.c -o sable
-```
-
-3. Run the shell:
-
-```bash
-./sable
+make clean
+make
 ```
 
 ---
 
-## Usage
-
-Once the shell is running, you can:
-
-* Run normal commands:
+## Running
 
 ```bash
-ls -l
-pwd
-echo "Hello World"
+./build/sable
 ```
 
-* Change directories:
+Once running, you can execute commands, change directories with `cd`, or exit using `exit`.
 
-```bash
-cd /path/to/directory
+Prompt example:
+
 ```
-
-* Exit the shell:
-
-```bash
-exit
-```
-
-* The prompt will look like:
-
-```text
 username:/current/directory$
 ```
 
@@ -81,9 +83,9 @@ username:/current/directory$
 
 ## Notes
 
-* Commands like `cd` must be built-ins to affect the current shell.
-* Background jobs, pipes, and input/output redirection are **not yet supported**.
-* This shell is intended for learning purposes and as a foundation for building a more advanced shell.
+* Built-ins like `cd` and `exit` are handled internally.
+* Features such as pipes, redirection, or background jobs are **not yet implemented**.
+* Intended as a learning tool and foundation for more advanced shells.
 
 ---
 
