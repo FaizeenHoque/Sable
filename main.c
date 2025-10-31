@@ -119,14 +119,15 @@ char **split_line(char *line) {
 
     tokens[position] = NULL;
 
-    return tokens;
   }
+  return tokens;
 }
 
 char *read_line() {
     int buffsize = 1024;
     int position = 0;
     char * buffer = malloc(sizeof(char) & buffsize);
+
     int c;
 
     if (!buffer) {
