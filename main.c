@@ -4,22 +4,43 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <unistd.h>   // for getcwd()
+#include <limits.h>   // for PATH_MAX
+
 
 #define TOK_DELIM " \t\r\n"
-#define RED "\033[0;31m"
-#define RESET "\e[0m"
+#define RED    "\033[0;31m"
+#define GREEN  "\033[0;32m"
+#define BLUE   "\033[0;34m"
+#define RESET  "\033[0m"
 
 char *read_line();
 char **split_line(char *);
 int dash_exit(char **);
 int dash_execute(char **);
+int dash_cd(char **);
+
+int dash_cd(char **args) {
+    if (args[1] == NULL) {
+        fprintf(stderr, "dash: expected argument to \"cd\"\n");
+    } else {
+        if (chdir(args[1]) != 0) {
+            perror("dash");
+        }
+    }
+    return 1;
+}
 
 int dash_execute(char **args) {
   if (args[0] == NULL)
-        return 1;
+      return 1;
 
   if (strcmp(args[0], "exit") == 0)
       return dash_exit(args);
+
+      
+  if (strcmp(args[0], "cd") == 0)
+      return dash_cd(args);
 
   pid_t cpid;
   int status;
@@ -123,20 +144,30 @@ char *read_line() {
 }
 
 void loop() {
-  char *line;
-  char **args;
-  int status = 1;
+    char *line;
+    char **args;
+    int status = 1;
+    char cwd[PATH_MAX];      
+    char *username = getenv("USER");  
 
-  do {
-    printf("> ");
-    fflush(stdout);
-    line = read_line();
-    args = split_line(line);
-    status = dash_execute(args);
-    free(line);
-    free(args);
-  } while (status);
+    do {
+        if (getcwd(cwd, sizeof(cwd)) != NULL) {
+            printf("%s%s%s:%s%s%s$ ", 
+                   BLUE, username ? username : "user", RESET,
+                   GREEN, cwd, RESET);
+        } else {
+            printf("%s%s%s:?$ ", BLUE, username ? username : "user", RESET);
+        }
+        fflush(stdout);
+
+        line = read_line();
+        args = split_line(line);
+        status = dash_execute(args);
+        free(line);
+        free(args);
+    } while (status);
 }
+
 
 
 int main() {
