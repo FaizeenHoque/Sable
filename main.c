@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-// #include <sys/types.h>
+#include <sys/types.h>
 #include <unistd.h>
-// #include <sys/wait.h>
-
-#include <windows.h>
+#include <sys/wait.h>
 
 #define TOK_DELIM " \t\r\n"
 #define RED "\033[0;31m"
@@ -16,74 +14,27 @@ char **split_line(char *);
 int dash_exit(char **);
 int dash_execute(char **);
 
-// int dash_execute(char **args) {
-//   pid_t cpid;
-//   int status;
-
-//   if (strcmp(args[0], "exit") == 0) {
-//     return dash_exit(args);
-//   }
-
-//   cpid = fork();
-
-//   if (cpid == 0) {
-//     if (execvp(args[0], args) < 0)
-//       printf("%sdash: Command not found: %s%s\n", RED, args[0], RESET);
-//     exit(EXIT_FAILURE);
-//   } else if (cpid < 0) {
-//     printf("%sdash: Error forking%s\n", RED, RESET);
-//   } else {
-//     waitpid(cpid, &status, WUNTRACED);
-//   }
-
-//   return 1;
-// }
-
 int dash_execute(char **args) {
-    if (strcmp(args[0], "exit") == 0) {
-        return dash_exit(args);
-    }
+  pid_t cpid;
+  int status;
 
-    // Build command line for CreateProcess
-    char cmdline[1024] = "";
-    for (int i = 0; args[i] != NULL; i++) {
-        strcat(cmdline, args[i]);
-        if (args[i + 1] != NULL)
-            strcat(cmdline, " ");
-    }
+  if (strcmp(args[0], "exit") == 0) {
+    return dash_exit(args);
+  }
 
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
+  cpid = fork();
 
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
+  if (cpid == 0) {
+    if (execvp(args[0], args) < 0)
+      printf("%sdash: Command not found: %s%s\n", RED, args[0], RESET);
+    exit(EXIT_FAILURE);
+  } else if (cpid < 0) {
+    printf("%sdash: Error forking%s\n", RED, RESET);
+  } else {
+    waitpid(cpid, &status, WUNTRACED);
+  }
 
-    // Create the process
-    if (!CreateProcess(
-            NULL,          // Application name
-            cmdline,       // Command line
-            NULL,          // Process handle not inheritable
-            NULL,          // Thread handle not inheritable
-            FALSE,         // Set handle inheritance to FALSE
-            0,             // No creation flags
-            NULL,          // Use parent's environment block
-            NULL,          // Use parent's starting directory 
-            &si,           // Pointer to STARTUPINFO structure
-            &pi)           // Pointer to PROCESS_INFORMATION structure
-    ) {
-        printf("%sdash: Command not found: %s%s\n", RED, args[0], RESET);
-        return 1;
-    }
-
-    // Wait until child process exits
-    WaitForSingleObject(pi.hProcess, INFINITE);
-
-    // Close process and thread handles
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-
-    return 1;
+  return 1;
 }
 
 int dash_exit(char **args)
@@ -113,20 +64,30 @@ char **split_line(char *line) {
         fprintf(stderr, "%dash: Allocation error%\n", RED, RESET);
         exit(EXIT_FAILURE);
       }
-
-      token = strtok(NULL, TOK_DELIM);
     }
-
-    tokens[position] = NULL;
-
+    
+    token = strtok(NULL, TOK_DELIM);
   }
+  
+  tokens[position] = NULL;
   return tokens;
 }
 
 char *read_line() {
     int buffsize = 1024;
     int position = 0;
-    char * buffer = malloc(sizeof(char) & buffsize);
+    // char * buffer = malloc(sizeof(char) & buffsize);
+    // char *buffer = malloc(buffsize);
+
+    char *new_buffer = realloc(buffer, buffsize);
+    if (!new_buffer) {
+        free(buffer);
+        fprintf(stderr, "%sdash: Allocation error%s\n", RED, RESET);
+        exit(EXIT_FAILURE);
+    }
+    
+    buffer = new_buffer;
+
 
     int c;
 
